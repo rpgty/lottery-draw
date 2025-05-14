@@ -79,7 +79,13 @@
         function addOptions() {
             const names = document.getElementById('optionNames').value.split('\n').map(name => name.trim()).filter(name => name);
             names.forEach(name => {
-                options.push({ name: escapeHTML(name), quantity: 1, probability: 0 });
+                const escapedName = escapeHTML(name);
+                const existingOption = options.find(option => option.name === escapedName);
+                if (existingOption) {
+                    existingOption.quantity += 1;
+                } else {
+                    options.push({ name: escapedName, quantity: 1, probability: 0 });
+                }
             });
             updateProbabilities();
             renderOptions();
