@@ -278,7 +278,7 @@
             history.forEach((results, drawIndex) => {
                 const li = document.createElement('li');
                 li.className = 'result-item';
-                li.textContent = `抽籤 ${drawIndex + 1}: ${results.join(', ')}`;
+                li.textContent = `結果(${drawIndex + 1}): ${results.join(', ')}`;
                 historyList.appendChild(li);
             });
         }
