@@ -37,6 +37,7 @@
             <label for="optionNames">籤選項名稱 (每行一個):</label>
             <textarea id="optionNames" rows="5" cols="30"></textarea>
             <button onclick="addOptions()">新增籤選項</button>
+            <button onclick="clearOptions()">清除所有籤選項</button>
         </div>
         <ul class="option-list" id="optionList"></ul>
         <div>
@@ -46,11 +47,14 @@
             <label for="withReplacement">是否放回:</label>
             <input type="checkbox" id="withReplacement">
             <button onclick="draw()">抽籤</button>
+            <button onclick="clearHistory()">清除歷史結果</button>
         </div>
         <ul class="result-list" id="resultList"></ul>
+        <ul class="result-list" id="historyList"></ul>
     </div>
     <script>
         let options = [];
+        let history = [];
 
         function addOptions() {
             const names = document.getElementById('optionNames').value.split('\n').map(name => name.trim()).filter(name => name);
@@ -60,6 +64,12 @@
             updateProbabilities();
             renderOptions();
             document.getElementById('optionNames').value = ''; // 清空輸入框
+        }
+
+        function clearOptions() {
+            options = [];
+            renderOptions();
+            document.getElementById('remainingProbability').textContent = '100';
         }
 
         function updateProbabilities() {
@@ -162,6 +172,32 @@
                 li.textContent = `${index + 1}. ${result}`;
                 resultList.appendChild(li);
             });
+
+            // 保留歷史結果
+            history.push(results);
+            renderHistory();
+
+            // 重置選項
+            if (!withReplacement) {
+                updateProbabilities();
+                renderOptions();
+            }
+        }
+
+        function renderHistory() {
+            const historyList = document.getElementById('historyList');
+            historyList.innerHTML = '';
+            history.forEach((results, drawIndex) => {
+                const li = document.createElement('li');
+                li.className = 'result-item';
+                li.textContent = `抽籤 ${drawIndex + 1}: ${results.join(', ')}`;
+                historyList.appendChild(li);
+            });
+        }
+
+        function clearHistory() {
+            history = [];
+            renderHistory();
         }
     </script>
 </body>
