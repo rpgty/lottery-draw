@@ -28,16 +28,26 @@
         .option-item input[type="number"] {
             width: 60px;
         }
+        .input-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .input-group textarea {
+            flex-grow: 1;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>抽籤程式</h1>
-        <div>
+        <div class="input-group">
             <label for="optionNames">籤選項名稱 (每行一個):</label>
             <textarea id="optionNames" rows="5" cols="15"></textarea>
-            <button onclick="addOptions()">新增選項</button>
-            <button onclick="clearOptions()">清除所有選項</button>
+            <div>
+                <button onclick="addOptions()">新增選項</button>
+                <button onclick="clearOptions()">清除所有選項</button>
+            </div>
         </div>
         <ul class="option-list" id="optionList"></ul>
         <div>
