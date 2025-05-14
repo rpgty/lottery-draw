@@ -36,6 +36,16 @@
         .input-group textarea {
             flex-grow: 1;
         }
+        .option-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            flex-grow: 1;
+        }
+        .option-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -137,13 +147,53 @@
             options.forEach((option, index) => {
                 const li = document.createElement('li');
                 li.className = 'option-item';
-                li.innerHTML = `
-                    ${option.name} - 
-                    數量: <input type="number" value="${option.quantity}" min="1"
-                           onchange="handleQuantityChange(${index}, this.value)">
-                    機率: <input type="number" value="${option.probability.toFixed(2)}" min="0" max="100" step="0.01"
-                           onchange="handleProbabilityChange(${index}, this.value)">
-                    % <button onclick="removeOption(${index})">刪除</button>`;
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'option-name';
+                nameSpan.textContent = option.name;
+                
+                const controlsDiv = document.createElement('div');
+                controlsDiv.className = 'option-controls';
+                
+                const quantityLabel = document.createElement('label');
+                quantityLabel.textContent = '數量: ';
+                
+                const quantityInput = document.createElement('input');
+                quantityInput.type = 'number';
+                quantityInput.value = option.quantity;
+                quantityInput.min = '1';
+                quantityInput.onchange = function() {
+                    handleQuantityChange(index, this.value);
+                };
+                
+                const probabilityLabel = document.createElement('label');
+                probabilityLabel.textContent = '機率: ';
+                
+                const probabilityInput = document.createElement('input');
+                probabilityInput.type = 'number';
+                probabilityInput.value = option.probability.toFixed(2);
+                probabilityInput.min = '0';
+                probabilityInput.max = '100';
+                probabilityInput.step = '0.01';
+                probabilityInput.onchange = function() {
+                    handleProbabilityChange(index, this.value);
+                };
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = '刪除';
+                deleteButton.onclick = function() {
+                    removeOption(index);
+                };
+                
+                controlsDiv.appendChild(quantityLabel);
+                controlsDiv.appendChild(quantityInput);
+                controlsDiv.appendChild(probabilityLabel);
+                controlsDiv.appendChild(probabilityInput);
+                controlsDiv.appendChild(document.createTextNode('% '));
+                controlsDiv.appendChild(deleteButton);
+                
+                li.appendChild(nameSpan);
+                li.appendChild(controlsDiv);
                 optionList.appendChild(li);
             });
         }
