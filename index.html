@@ -66,10 +66,20 @@
         let options = [];
         let history = [];
 
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                "'": '&#39;',
+                '"': '&quot;'
+            }[tag] || tag));
+        }
+
         function addOptions() {
             const names = document.getElementById('optionNames').value.split('\n').map(name => name.trim()).filter(name => name);
             names.forEach(name => {
-                options.push({ name, quantity: 1, probability: 0 });
+                options.push({ name: escapeHTML(name), quantity: 1, probability: 0 });
             });
             updateProbabilities();
             renderOptions();
