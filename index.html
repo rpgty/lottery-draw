@@ -75,11 +75,11 @@
         function updateRemainingProbability() {
             const totalProbability = options.reduce((sum, option) => sum + option.probability, 0);
             const remaining = 100 - totalProbability;
-            document.getElementById('remainingProbability').textContent = remaining;
+            document.getElementById('remainingProbability').textContent = remaining.toFixed(2);
         }
 
         function handleProbabilityChange(index, value) {
-            const newProbability = parseInt(value, 10);
+            const newProbability = parseFloat(value);
             if (!isNaN(newProbability) && newProbability >= 0 && newProbability <= 100) {
                 options[index].probability = newProbability;
                 updateRemainingProbability();
@@ -94,7 +94,7 @@
                 li.className = 'option-item';
                 li.innerHTML = `
                     ${option.name} - 
-                    <input type="number" value="${option.probability}" min="0" max="100" 
+                    <input type="number" value="${option.probability}" min="0" max="100" step="0.01"
                            onchange="handleProbabilityChange(${index}, this.value)">
                     % <button onclick="removeOption(${index})">刪除</button>`;
                 optionList.appendChild(li);
@@ -119,8 +119,10 @@
 
             const totalProbability = options.reduce((sum, option) => sum + option.probability, 0);
             if (totalProbability !== 100) {
-                alert('總機率必須為100%');
-                return;
+                const confirmDraw = confirm('目前機率總和非100%，請確認是否執行?');
+                if (!confirmDraw) {
+                    return;
+                }
             }
 
             if (isNaN(drawCount) || drawCount < 1 || options.length === 0) {
