@@ -56,6 +56,7 @@
                 renderOptions();
             }
         }
+
         function renderOptions() {
             const optionList = document.getElementById('optionList');
             optionList.innerHTML = '';
@@ -66,22 +67,27 @@
                 optionList.appendChild(li);
             });
         }
+
         function removeOption(index) {
             options.splice(index, 1);
             renderOptions();
         }
+
         function draw() {
             const drawCount = parseInt(document.getElementById('drawCount').value, 10);
             const withReplacement = document.getElementById('withReplacement').checked;
             const resultList = document.getElementById('resultList');
             resultList.innerHTML = '';
+
             if (isNaN(drawCount) || drawCount < 1 || options.length === 0) {
                 return;
             }
+
             const results = [];
             for (let i = 0; i < drawCount; i++) {
                 const totalProbability = options.reduce((sum, option) => sum + option.probability, 0);
                 let random = Math.random() * totalProbability;
+
                 for (const option of options) {
                     random -= option.probability;
                     if (random <= 0) {
@@ -93,10 +99,11 @@
                     }
                 }
             }
-            results.forEach(result => {
+
+            results.forEach((result, index) => {
                 const li = document.createElement('li');
                 li.className = 'result-item';
-                li.textContent = result;
+                li.textContent = `${index + 1}. ${result}`;
                 resultList.appendChild(li);
             });
         }
