@@ -55,20 +55,15 @@
         function addOption() {
             const name = document.getElementById('optionName').value;
             if (name) {
-                options.push({ name, probability: 0 });
-                distributeProbabilities();
+                options.push({ name, quantity: 1, probability: 0 });
+                updateProbabilities();
                 renderOptions();
             }
         }
 
-        function distributeProbabilities() {
-            const totalOptions = options.length;
-            const equalProbability = Math.floor(100 / totalOptions);
-            options.forEach(option => option.probability = equalProbability);
-            let remaining = 100 - equalProbability * totalOptions;
-            for (let i = 0; remaining > 0 && i < totalOptions; i++, remaining--) {
-                options[i].probability += 1;
-            }
+        function updateProbabilities() {
+            const totalQuantity = options.reduce((sum, option) => sum + option.quantity, 0);
+            options.forEach(option => option.probability = (option.quantity / totalQuantity) * 100);
             updateRemainingProbability();
         }
 
@@ -78,11 +73,23 @@
             document.getElementById('remainingProbability').textContent = remaining.toFixed(2);
         }
 
+        function handleQuantityChange(index, value) {
+            const newQuantity = parseInt(value, 10);
+            if (!isNaN(newQuantity) && newQuantity > 0) {
+                options[index].quantity = newQuantity;
+                updateProbabilities();
+                renderOptions();
+            }
+        }
+
         function handleProbabilityChange(index, value) {
             const newProbability = parseFloat(value);
             if (!isNaN(newProbability) && newProbability >= 0 && newProbability <= 100) {
                 options[index].probability = newProbability;
-                updateRemainingProbability();
+                const totalProbability = options.reduce((sum, option) => sum + option.probability, 0);
+                if (totalProbability <= 100) {
+                    updateRemainingProbability();
+                }
             }
         }
 
@@ -94,7 +101,9 @@
                 li.className = 'option-item';
                 li.innerHTML = `
                     ${option.name} - 
-                    <input type="number" value="${option.probability}" min="0" max="100" step="0.01"
+                    數量: <input type="number" value="${option.quantity}" min="1"
+                           onchange="handleQuantityChange(${index}, this.value)">
+                    機率: <input type="number" value="${option.probability.toFixed(2)}" min="0" max="100" step="0.01"
                            onchange="handleProbabilityChange(${index}, this.value)">
                     % <button onclick="removeOption(${index})">刪除</button>`;
                 optionList.appendChild(li);
@@ -104,7 +113,7 @@
         function removeOption(index) {
             options.splice(index, 1);
             if (options.length > 0) {
-                distributeProbabilities();
+                updateProbabilities();
             } else {
                 document.getElementById('remainingProbability').textContent = 100;
             }
