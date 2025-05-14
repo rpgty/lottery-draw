@@ -34,9 +34,9 @@
     <div class="container">
         <h1>抽籤程式</h1>
         <div>
-            <label for="optionName">籤選項名稱:</label>
-            <input type="text" id="optionName">
-            <button onclick="addOption()">新增籤選項</button>
+            <label for="optionNames">籤選項名稱 (每行一個):</label>
+            <textarea id="optionNames" rows="5" cols="30"></textarea>
+            <button onclick="addOptions()">新增籤選項</button>
         </div>
         <ul class="option-list" id="optionList"></ul>
         <div>
@@ -52,14 +52,14 @@
     <script>
         let options = [];
 
-        function addOption() {
-            const name = document.getElementById('optionName').value;
-            if (name) {
+        function addOptions() {
+            const names = document.getElementById('optionNames').value.split('\n').map(name => name.trim()).filter(name => name);
+            names.forEach(name => {
                 options.push({ name, quantity: 1, probability: 0 });
-                updateProbabilities();
-                renderOptions();
-                document.getElementById('optionName').value = ''; // 清空輸入框
-            }
+            });
+            updateProbabilities();
+            renderOptions();
+            document.getElementById('optionNames').value = ''; // 清空輸入框
         }
 
         function updateProbabilities() {
