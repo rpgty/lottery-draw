@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽籤程式</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .option-list, .result-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .option-item, .result-item {
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>抽籤程式</h1>
+        <div>
+            <label for="optionName">籤選項名稱:</label>
+            <input type="text" id="optionName">
+            <label for="optionProbability">中獎機率 (%):</label>
+            <input type="number" id="optionProbability" min="0" max="100">
+            <button onclick="addOption()">新增籤選項</button>
+        </div>
+        <ul class="option-list" id="optionList"></ul>
+        <div>
+            <label for="drawCount">中獎籤數:</label>
+            <input type="number" id="drawCount" min="1">
+            <label for="withReplacement">是否放回:</label>
+            <input type="checkbox" id="withReplacement">
+            <button onclick="draw()">抽籤</button>
+        </div>
+        <ul class="result-list" id="resultList"></ul>
+    </div>
+    <script>
+        let options = [];
+        function addOption() {
+            const name = document.getElementById('optionName').value;
+            const probability = parseInt(document.getElementById('optionProbability').value, 10);
+            if (name && !isNaN(probability)) {
+                options.push({ name, probability });
+                renderOptions();
+            }
+        }
+        function renderOptions() {
+            const optionList = document.getElementById('optionList');
+            optionList.innerHTML = '';
+            options.forEach((option, index) => {
+                const li = document.createElement('li');
+                li.className = 'option-item';
+                li.innerHTML = `${option.name} - ${option.probability}% <button onclick="removeOption(${index})">刪除</button>`;
+                optionList.appendChild(li);
+            });
+        }
+        function removeOption(index) {
+            options.splice(index, 1);
+            renderOptions();
+        }
+        function draw() {
+            const drawCount = parseInt(document.getElementById('drawCount').value, 10);
+            const withReplacement = document.getElementById('withReplacement').checked;
+            const resultList = document.getElementById('resultList');
+            resultList.innerHTML = '';
+            if (isNaN(drawCount) || drawCount < 1 || options.length === 0) {
+                return;
+            }
+            const results = [];
+            for (let i = 0; i < drawCount; i++) {
+                const totalProbability = options.reduce((sum, option) => sum + option.probability, 0);
+                let random = Math.random() * totalProbability;
+                for (const option of options) {
+                    random -= option.probability;
+                    if (random <= 0) {
+                        results.push(option.name);
+                        if (!withReplacement) {
+                            option.probability = 0;
+                        }
+                        break;
+                    }
+                }
+            }
+            results.forEach(result => {
+                const li = document.createElement('li');
+                li.className = 'result-item';
+                li.textContent = result;
+                resultList.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
