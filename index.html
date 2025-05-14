@@ -137,16 +137,27 @@
             const resultList = document.getElementById('resultList');
             resultList.innerHTML = '';
 
+            if (isNaN(drawCount) || drawCount < 1) {
+                alert('請輸入有效的中獎籤數。');
+                return;
+            }
+
+            if (options.length === 0) {
+                alert('請先新增籤選項。');
+                return;
+            }
+
+            if (!withReplacement && drawCount > options.length) {
+                alert(`抽籤不放回時，抽籤數不可大於選項數量（目前選項數量：${options.length}）`);
+                return;
+            }
+
             const totalProbability = options.reduce((sum, option) => sum + option.probability, 0);
             if (totalProbability !== 100) {
                 const confirmDraw = confirm('目前機率總和非100%，請確認是否執行?');
                 if (!confirmDraw) {
                     return;
                 }
-            }
-
-            if (isNaN(drawCount) || drawCount < 1 || options.length === 0) {
-                return;
             }
 
             const results = [];
