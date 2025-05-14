@@ -36,15 +36,15 @@
         <div>
             <label for="optionNames">籤選項名稱 (每行一個):</label>
             <textarea id="optionNames" rows="5" cols="30"></textarea>
-            <button onclick="addOptions()">新增籤選項</button>
-            <button onclick="clearOptions()">清除所有籤選項</button>
+            <button onclick="addOptions()">新增選項</button>
+            <button onclick="clearOptions()">清除所有選項</button>
         </div>
         <ul class="option-list" id="optionList"></ul>
         <div>
             <p>未分配機率: <span id="remainingProbability">100</span>%</p>
-            <label for="drawCount">中獎籤數:</label>
+            <label for="drawCount">中獎數:</label>
             <input type="number" id="drawCount" min="1">
-            <label for="withReplacement">是否放回:</label>
+            <label for="withReplacement">放回:</label>
             <input type="checkbox" id="withReplacement">
             <button onclick="draw()">抽籤</button>
             <button onclick="clearResults()">清除結果</button>
@@ -138,17 +138,17 @@
             resultList.innerHTML = '';
 
             if (isNaN(drawCount) || drawCount < 1) {
-                alert('請輸入有效的中獎籤數。');
+                alert('請輸入有效的中獎數。');
                 return;
             }
 
             if (options.length === 0) {
-                alert('請先新增籤選項。');
+                alert('請先新增選項。');
                 return;
             }
 
             if (!withReplacement && drawCount > options.length) {
-                alert(`抽籤不放回時，抽籤數不可大於選項數量（目前選項數量：${options.length}）`);
+                alert(`抽籤不放回時，中獎數不可大於選項數量（目前選項數量：${options.length}）`);
                 return;
             }
 
