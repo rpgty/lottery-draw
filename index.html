@@ -119,6 +119,10 @@
             </div>
             <ul class="option-list" id="prizeList"></ul>
             <div>
+                <label for="allowRepeatWinners">允許重複得獎:</label>
+                <input type="checkbox" id="allowRepeatWinners">
+            </div>
+            <div>
                 <button onclick="multiDraw()">抽籤</button>
                 <button onclick="clearMultiResults()">清除結果</button>
             </div>
@@ -355,14 +359,10 @@
             const names = document.getElementById('participantNames').value.split('\n').map(name => name.trim()).filter(name => name);
             names.forEach(name => {
                 const escapedName = escapeHTML(name);
-                const existingParticipant = participants.find(participant => participant.name === escapedName);
-                if (existingParticipant) {
-                    existingParticipant.quantity += 1;
-                } else {
-                    participants.push({ name: escapedName, quantity: 1, probability: 0 });
+                if (!participants.includes(escapedName)) {
+                    participants.push(escapedName);
                 }
             });
-            updateParticipantProbabilities();
             renderParticipants();
             document.getElementById('participantNames').value = ''; // 清空輸入框
         }
@@ -372,102 +372,23 @@
             renderParticipants();
         }
 
-        function updateParticipantProbabilities() {
-            const totalQuantity = participants.reduce((sum, participant) => sum + participant.quantity, 0);
-            participants.forEach(participant => participant.probability = (participant.quantity / totalQuantity) * 100);
-        }
-
-        function handleParticipantQuantityChange(index, value) {
-            const newQuantity = parseInt(value, 10);
-            if (!isNaN(newQuantity) && newQuantity > 0) {
-                participants[index].quantity = newQuantity;
-                updateParticipantProbabilities();
-                renderParticipants();
-            }
-        }
-
-        function handleParticipantProbabilityChange(index, value) {
-            const newProbability = parseFloat(value);
-            if (!isNaN(newProbability) && newProbability >= 0 && newProbability <= 100) {
-                participants[index].probability = newProbability;
-                const totalProbability = participants.reduce((sum, participant) => sum + participant.probability, 0);
-                if (totalProbability <= 100) {
-                    updateRemainingProbability();
-                }
-            }
-        }
-
         function renderParticipants() {
             const participantList = document.getElementById('participantList');
             participantList.innerHTML = '';
-            participants.forEach((participant, index) => {
+            participants.forEach(participant => {
                 const li = document.createElement('li');
                 li.className = 'option-item';
-                
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'option-name';
-                nameSpan.textContent = participant.name;
-                
-                const controlsDiv = document.createElement('div');
-                controlsDiv.className = 'option-controls';
-                
-                const quantityLabel = document.createElement('label');
-                quantityLabel.textContent = '數量: ';
-                
-                const quantityInput = document.createElement('input');
-                quantityInput.type = 'number';
-                quantityInput.value = participant.quantity;
-                quantityInput.min = '1';
-                quantityInput.onchange = function() {
-                    handleParticipantQuantityChange(index, this.value);
-                };
-                
-                const probabilityLabel = document.createElement('label');
-                probabilityLabel.textContent = '機率: ';
-                
-                const probabilityInput = document.createElement('input');
-                probabilityInput.type = 'number';
-                probabilityInput.value = participant.probability.toFixed(2);
-                probabilityInput.min = '0';
-                probabilityInput.max = '100';
-                probabilityInput.step = '0.01';
-                probabilityInput.onchange = function() {
-                    handleParticipantProbabilityChange(index, this.value);
-                };
-                
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = '刪除';
-                deleteButton.onclick = function() {
-                    removeParticipant(index);
-                };
-                
-                controlsDiv.appendChild(quantityLabel);
-                controlsDiv.appendChild(quantityInput);
-                controlsDiv.appendChild(probabilityLabel);
-                controlsDiv.appendChild(probabilityInput);
-                controlsDiv.appendChild(document.createTextNode('% '));
-                controlsDiv.appendChild(deleteButton);
-                
-                li.appendChild(nameSpan);
-                li.appendChild(controlsDiv);
+                li.textContent = participant;
                 participantList.appendChild(li);
             });
-        }
-
-        function removeParticipant(index) {
-            participants.splice(index, 1);
-            renderParticipants();
         }
 
         function addPrizes() {
             const names = document.getElementById('prizeNames').value.split('\n').map(name => name.trim()).filter(name => name);
             names.forEach(name => {
                 const escapedName = escapeHTML(name);
-                const existingPrize = prizes.find(prize => prize.name === escapedName);
-                if (existingPrize) {
-                    existingPrize.quantity += 1;
-                } else {
-                    prizes.push({ name: escapedName, quantity: 1 });
+                if (!prizes.includes(escapedName)) {
+                    prizes.push(escapedName);
                 }
             });
             renderPrizes();
@@ -479,93 +400,53 @@
             renderPrizes();
         }
 
-        function handlePrizeQuantityChange(index, value) {
-            const newQuantity = parseInt(value, 10);
-            if (!isNaN(newQuantity) && newQuantity > 0) {
-                prizes[index].quantity = newQuantity;
-                renderPrizes();
-            }
-        }
-
         function renderPrizes() {
             const prizeList = document.getElementById('prizeList');
             prizeList.innerHTML = '';
-            prizes.forEach((prize, index) => {
+            prizes.forEach(prize => {
                 const li = document.createElement('li');
                 li.className = 'option-item';
-                
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'option-name';
-                nameSpan.textContent = prize.name;
-                
-                const controlsDiv = document.createElement('div');
-                controlsDiv.className = 'option-controls';
-                
-                const quantityLabel = document.createElement('label');
-                quantityLabel.textContent = '數量: ';
-                
-                const quantityInput = document.createElement('input');
-                quantityInput.type = 'number';
-                quantityInput.value = prize.quantity;
-                quantityInput.min = '1';
-                quantityInput.onchange = function() {
-                    handlePrizeQuantityChange(index, this.value);
-                };
-                
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = '刪除';
-                deleteButton.onclick = function() {
-                    removePrize(index);
-                };
-                
-                controlsDiv.appendChild(quantityLabel);
-                controlsDiv.appendChild(quantityInput);
-                controlsDiv.appendChild(deleteButton);
-                
-                li.appendChild(nameSpan);
-                li.appendChild(controlsDiv);
+                li.textContent = prize;
                 prizeList.appendChild(li);
             });
         }
-        function removePrize(index) {
-            prizes.splice(index, 1);
-            renderPrizes();
-        }
 
         function multiDraw() {
-            const multiResultList = document.getElementById('multiResultList');
-            multiResultList.innerHTML = '';
-
-            if (participants.length === 0) {
-                alert('請先新增參加者。');
+            const allowRepeatWinners = document.getElementById('allowRepeatWinners').checked;
+            if (participants.length === 0 || prizes.length === 0) {
+                alert('請確保有參加者和獎項');
                 return;
             }
-
-            if (prizes.length === 0) {
-                alert('請先新增獎項。');
-                return;
-            }
-
-            const results = [];
+        
+            const winners = [];
+            const remainingParticipants = [...participants];
+        
             prizes.forEach(prize => {
-                for (let i = 0; i < prize.quantity; i++) {
-                    const totalProbability = participants.reduce((sum, participant) => sum + participant.probability, 0);
-                    let random = Math.random() * totalProbability;
-
-                    for (const participant of participants) {
-                        random -= participant.probability;
-                        if (random <= 0) {
-                            results.push({ prize: prize.name, winner: participant.name });
-                            break;
-                        }
-                    }
+                if (remainingParticipants.length === 0) {
+                    alert('參加者不足');
+                    return;
+                }
+        
+                const winnerIndex = Math.floor(Math.random() * remainingParticipants.length);
+                const winner = remainingParticipants[winnerIndex];
+        
+                winners.push({ prize, winner });
+        
+                if (!allowRepeatWinners) {
+                    remainingParticipants.splice(winnerIndex, 1);
                 }
             });
-
-            results.forEach((result, index) => {
+        
+            renderMultiResults(winners);
+        }
+        
+        function renderMultiResults(winners) {
+            const multiResultList = document.getElementById('multiResultList');
+            multiResultList.innerHTML = '';
+            winners.forEach(({ prize, winner }) => {
                 const li = document.createElement('li');
                 li.className = 'result-item';
-                li.textContent = `${index + 1}. ${result.prize} - ${result.winner}`;
+                li.textContent = `${winner} 獲得 ${prize}`;
                 multiResultList.appendChild(li);
             });
         }
