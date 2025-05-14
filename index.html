@@ -209,17 +209,17 @@
             options.forEach((option, index) => {
                 const li = document.createElement('li');
                 li.className = 'option-item';
-                
+        
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'option-name';
                 nameSpan.textContent = option.name;
-                
+        
                 const controlsDiv = document.createElement('div');
                 controlsDiv.className = 'option-controls';
-                
+        
                 const quantityLabel = document.createElement('label');
                 quantityLabel.textContent = '數量: ';
-                
+        
                 const quantityInput = document.createElement('input');
                 quantityInput.type = 'number';
                 quantityInput.value = option.quantity;
@@ -227,7 +227,7 @@
                 quantityInput.onchange = function() {
                     handleQuantityChange(index, this.value);
                 };
-                
+        
                 const probabilityLabel = document.createElement('label');
                 probabilityLabel.textContent = '機率: ';
                 
