@@ -64,10 +64,6 @@
         .tab-content.active {
             display: block;
         }
-        .result-item {
-            font-weight: bold;
-            font-size: 1.2em;
-        }
     </style>
 </head>
 <body>
@@ -103,24 +99,10 @@
             <div class="input-group">
                 <label for="participantNames">參加抽獎的對象 (每行一個):</label>
                 <textarea id="participantNames" rows="5" cols="15"></textarea>
-                <div>
-                    <button onclick="addParticipants()">新增參加者</button>
-                    <button onclick="clearParticipants()">清除所有參加者</button>
-                </div>
             </div>
-            <ul class="option-list" id="participantList"></ul>
             <div class="input-group">
                 <label for="prizeNames">獎項名稱 (每行一個):</label>
                 <textarea id="prizeNames" rows="5" cols="15"></textarea>
-                <div>
-                    <button onclick="addPrizes()">新增獎項</button>
-                    <button onclick="clearPrizes()">清除所有獎項</button>
-                </div>
-            </div>
-            <ul class="option-list" id="prizeList"></ul>
-            <div>
-                <label for="allowRepeatWinners">允許重複得獎:</label>
-                <input type="checkbox" id="allowRepeatWinners">
             </div>
             <div>
                 <button onclick="multiDraw()">抽籤</button>
@@ -132,8 +114,6 @@
     <script>
         let options = [];
         let history = [];
-        let participants = [];
-        let prizes = [];
 
         function escapeHTML(str) {
             return str.replace(/[&<>'"]/g, tag => ({
@@ -213,17 +193,17 @@
             options.forEach((option, index) => {
                 const li = document.createElement('li');
                 li.className = 'option-item';
-        
+                
                 const nameSpan = document.createElement('span');
                 nameSpan.className = 'option-name';
                 nameSpan.textContent = option.name;
-        
+                
                 const controlsDiv = document.createElement('div');
                 controlsDiv.className = 'option-controls';
-        
+                
                 const quantityLabel = document.createElement('label');
                 quantityLabel.textContent = '數量: ';
-        
+                
                 const quantityInput = document.createElement('input');
                 quantityInput.type = 'number';
                 quantityInput.value = option.quantity;
@@ -231,7 +211,7 @@
                 quantityInput.onchange = function() {
                     handleQuantityChange(index, this.value);
                 };
-        
+                
                 const probabilityLabel = document.createElement('label');
                 probabilityLabel.textContent = '機率: ';
                 
@@ -355,220 +335,29 @@
             renderHistory();
         }
 
-        function addParticipants() {
-            const names = document.getElementById('participantNames').value.split('\n').map(name => name.trim()).filter(name => name);
-            names.forEach(name => {
-                const escapedName = escapeHTML(name);
-                const existingParticipant = participants.find(participant => participant.name === escapedName);
-                if (existingParticipant) {
-                    existingParticipant.probability += 1;
-                } else {
-                    participants.push({ name: escapedName, probability: 1 });
-                }
-            });
-            updateParticipantProbabilities();
-            renderParticipants();
-            document.getElementById('participantNames').value = ''; // 清空輸入框
-        }
-
-        function clearParticipants() {
-            participants = [];
-            renderParticipants();
-        }
-
-        function updateParticipantProbabilities() {
-            const totalProbability = participants.reduce((sum, participant) => sum + participant.probability, 0);
-            participants.forEach(participant => participant.probability = (participant.probability / totalProbability) * 100);
-        }
-
-        function handleParticipantProbabilityChange(index, value) {
-            const newProbability = parseFloat(value);
-            if (!isNaN(newProbability) && newProbability >= 0 && newProbability <= 100) {
-                participants[index].probability = newProbability;
-                const totalProbability = participants.reduce((sum, participant) => sum + participant.probability, 0);
-                if (totalProbability <= 100) {
-                    updateParticipantProbabilities();
-                    renderParticipants();
-                }
-            }
-        }
-
-        function renderParticipants() {
-            const participantList = document.getElementById('participantList');
-            participantList.innerHTML = '';
-            participants.forEach((participant, index) => {
-                const li = document.createElement('li');
-                li.className = 'option-item';
-        
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'option-name';
-                nameSpan.textContent = participant.name;
-        
-                const controlsDiv = document.createElement('div');
-                controlsDiv.className = 'option-controls';
-        
-                const probabilityLabel = document.createElement('label');
-                probabilityLabel.textContent = '機率: ';
-                
-                const probabilityInput = document.createElement('input');
-                probabilityInput.type = 'number';
-                probabilityInput.value = participant.probability.toFixed(2);
-                probabilityInput.min = '0';
-                probabilityInput.max = '100';
-                probabilityInput.step = '0.01';
-                probabilityInput.onchange = function() {
-                    handleParticipantProbabilityChange(index, this.value);
-                };
-                
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = '刪除';
-                deleteButton.onclick = function() {
-                    removeParticipant(index);
-                };
-                
-                controlsDiv.appendChild(probabilityLabel);
-                controlsDiv.appendChild(probabilityInput);
-                controlsDiv.appendChild(document.createTextNode('% '));
-                controlsDiv.appendChild(deleteButton);
-                
-                li.appendChild(nameSpan);
-                li.appendChild(controlsDiv);
-                participantList.appendChild(li);
-            });
-        }
-
-        function removeParticipant(index) {
-            participants.splice(index, 1);
-            if (participants.length > 0) {
-                updateParticipantProbabilities();
-            }
-            renderParticipants();
-        }
-
-        function addPrizes() {
-            const names = document.getElementById('prizeNames').value.split('\n').map(name => name.trim()).filter(name => name);
-            names.forEach(name => {
-                const escapedName = escapeHTML(name);
-                const existingPrize = prizes.find(prize => prize.name === escapedName);
-                if (existingPrize) {
-                    existingPrize.quantity += 1;
-                } else {
-                    prizes.push({ name: escapedName, quantity: 1 });
-                }
-            });
-            renderPrizes();
-            document.getElementById('prizeNames').value = ''; // 清空輸入框
-        }
-
-        function clearPrizes() {
-            prizes = [];
-            renderPrizes();
-        }
-
-        function renderPrizes() {
-            const prizeList = document.getElementById('prizeList');
-            prizeList.innerHTML = '';
-            prizes.forEach((prize, index) => {
-                const li = document.createElement('li');
-                li.className = 'option-item';
-        
-                const nameSpan = document.createElement('span');
-                nameSpan.className = 'option-name';
-                nameSpan.textContent = prize.name;
-        
-                const controlsDiv = document.createElement('div');
-                controlsDiv.className = 'option-controls';
-        
-                const quantityLabel = document.createElement('label');
-                quantityLabel.textContent = '數量: ';
-        
-                const quantityInput = document.createElement('input');
-                quantityInput.type = 'number';
-                quantityInput.value = prize.quantity;
-                quantityInput.min = '1';
-                quantityInput.onchange = function() {
-                    handlePrizeQuantityChange(index, this.value);
-                };
-                
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = '刪除';
-                deleteButton.onclick = function() {
-                    removePrize(index);
-                };
-                
-                controlsDiv.appendChild(quantityLabel);
-                controlsDiv.appendChild(quantityInput);
-                controlsDiv.appendChild(deleteButton);
-                
-                li.appendChild(nameSpan);
-                li.appendChild(controlsDiv);
-                prizeList.appendChild(li);
-            });
-        }
-
-        function handlePrizeQuantityChange(index, value) {
-            const newQuantity = parseInt(value, 10);
-            if (!isNaN(newQuantity) && newQuantity > 0) {
-                prizes[index].quantity = newQuantity;
-                renderPrizes();
-            }
-        }
-
-        function removePrize(index) {
-            prizes.splice(index, 1);
-            renderPrizes();
-        }
-
         function multiDraw() {
-            const allowRepeatWinners = document.getElementById('allowRepeatWinners').checked;
-            if (participants.length === 0 || prizes.length === 0) {
-                                alert('請先新增參加者和獎項。');
-                return;
-            }
+            const participants = document.getElementById('participantNames').value.split('\n').map(name => name.trim()).filter(name => name);
+            const prizes = document.getElementById('prizeNames').value.split('\n').map(name => name.trim()).filter(name => name);
+            const multiResultList = document.getElementById('multiResultList');
+            multiResultList.innerHTML = '';
 
-            const totalPrizes = prizes.reduce((sum, prize) => sum + prize.quantity, 0);
-            if (!allowRepeatWinners && totalPrizes > participants.length) {
-                alert(`不允許重複得獎時，獎項數量不可大於參加者數量（目前參加者數量：${participants.length}）`);
+            if (participants.length === 0 || prizes.length === 0) {
+                alert('請輸入參加抽獎的對象和獎項名稱。');
                 return;
             }
 
             const results = [];
-            const remainingParticipants = [...participants];
+            const shuffledParticipants = participants.sort(() => 0.5 - Math.random());
 
-            for (const prize of prizes) {
-                for (let i = 0; i < prize.quantity; i++) {
-                    if (remainingParticipants.length === 0) {
-                        alert('參加者數量不足以分配所有獎項。');
-                        return;
-                    }
+            prizes.forEach((prize, index) => {
+                const participant = shuffledParticipants[index];
+                results.push({ prize, participant: participant || '未中獎' });
+            });
 
-                    const totalProbability = remainingParticipants.reduce((sum, participant) => sum + participant.probability, 0);
-                    let random = Math.random() * totalProbability;
-
-                    for (const participant of remainingParticipants) {
-                        random -= participant.probability;
-                        if (random <= 0) {
-                            results.push({ prize: prize.name, winner: participant.name });
-                            if (!allowRepeatWinners) {
-                                const index = remainingParticipants.indexOf(participant);
-                                remainingParticipants.splice(index, 1);
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-
-            renderMultiResults(results);
-        }
-
-        function renderMultiResults(results) {
-            const multiResultList = document.getElementById('multiResultList');
-            multiResultList.innerHTML = '';
-            results.forEach((result, index) => {
+            results.forEach(result => {
                 const li = document.createElement('li');
                 li.className = 'result-item';
-                li.textContent = `${index + 1}. ${result.winner} 獲得 ${result.prize}`;
+                li.textContent = `${result.prize}: ${result.participant}`;
                 multiResultList.appendChild(li);
             });
         }
@@ -579,5 +368,3 @@
     </script>
 </body>
 </html>
-
-               
