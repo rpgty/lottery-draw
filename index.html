@@ -47,7 +47,7 @@
             <label for="withReplacement">是否放回:</label>
             <input type="checkbox" id="withReplacement">
             <button onclick="draw()">抽籤</button>
-            <button onclick="clearHistory()">清除歷史結果</button>
+            <button onclick="clearResults()">清除結果</button>
         </div>
         <ul class="result-list" id="resultList"></ul>
         <ul class="result-list" id="historyList"></ul>
@@ -195,8 +195,9 @@
             });
         }
 
-        function clearHistory() {
+        function clearResults() {
             history = [];
+            document.getElementById('resultList').innerHTML = '';
             renderHistory();
         }
     </script>
